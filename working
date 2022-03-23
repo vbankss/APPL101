@@ -46,21 +46,23 @@ classdef testApp < matlab.apps.AppBase
            
             app.cmap;
 
-            r = [0]
-            theta = [0] 
-
+            r = [0];
+            theta = [0];
+            n = 0;
 
             while max(r) < size
-                %r += 0.1;
+                n = n + 1; 
                 r = r + 0.1;
                 r(end+1) = 0;
                 theta(end+1) = theta(end) + rotation;     
 
                 x_pos = coords(1) + r.*cos(theta);
                 y_pos = coords(2) + r.*sin(theta);
-                plot(app.UIAxes,x_pos,y_pos, '-ko','MarkerSize',12, 'Color', app.cmap(app.color_count, :));
+                plot(app.UIAxes,x_pos,y_pos, '-o','MarkerSize',12, 'Color', app.cmap(app.color_count, :));
                 pause(0.1);
             end 
+
+            app.Label_3.Text = string(n);
             
 %             app.UIAxes.XLim = [0 2*pi];
 %             n = 0;
