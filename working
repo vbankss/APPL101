@@ -1,0 +1,197 @@
+classdef testApp < matlab.apps.AppBase
+
+    % Properties that correspond to app components
+    properties (Access = public)
+        UIFigure             matlab.ui.Figure
+        ClickPositionLabel   matlab.ui.control.Label
+        NumberofSeedsLabel   matlab.ui.control.Label
+        Label_3              matlab.ui.control.Label
+        Label_2              matlab.ui.control.Label
+        Label                matlab.ui.control.Label
+        SizeSlider           matlab.ui.control.Slider
+        SizeSliderLabel      matlab.ui.control.Label
+        RotationSlider       matlab.ui.control.Slider
+        RotationSliderLabel  matlab.ui.control.Label
+        UIAxes               matlab.ui.control.UIAxes
+    end
+
+    
+    properties (Access = public)
+        cmap = hsv(10); % Description
+        color_count = 0;
+    end
+    
+
+    % Callbacks that handle component events
+    methods (Access = private)
+
+        % Value changed function: RotationSlider
+        function RotationSliderValueChanged(app, event)
+            value = app.RotationSlider.Value;
+            app.Label.Text = string(value);
+            
+        end
+
+        % Button down function: UIAxes
+        function UIAxesButtonDown(app, event)
+            app.color_count = app.color_count + 1;
+            if(app.color_count == 10)
+                app.color_count = 1;
+            end
+            rotation = app.RotationSlider.Value;
+            size = app.SizeSlider.Value;
+
+            coords = event.IntersectionPoint;
+            app.ClickPositionLabel.Text  = string(coords(1) + ",  " + coords(2));
+           
+            app.cmap;
+
+            r = [0]
+            theta = [0] 
+
+
+            while max(r) < size
+                %r += 0.1;
+                r = r + 0.1;
+                r(end+1) = 0;
+                theta(end+1) = theta(end) + rotation;     
+
+                x_pos = coords(1) + r.*cos(theta);
+                y_pos = coords(2) + r.*sin(theta);
+                plot(app.UIAxes,x_pos,y_pos, '-ko','MarkerSize',12, 'Color', app.cmap(app.color_count, :));
+                pause(0.1);
+            end 
+            
+%             app.UIAxes.XLim = [0 2*pi];
+%             n = 0;
+%             radius = 0.0;
+%             theta = 0.0;
+%             while radius < size
+%                 radius = double(sqrt(n) / 5); % adjusted this to decrease radius
+%                 theta = n * rotation; 
+%                 x_pos = coords(1) + radius*cos(theta);
+%                 y_pos = coords(2) + radius*sin(theta);
+%                 plot(app.UIAxes,x_pos,y_pos, '-ko','MarkerSize',12, 'Color', app.cmap(app.color_count, :));
+%                 hold(app.UIAxes, "on");
+%                 drawnow;
+%                 n = n + 1; 
+%             
+%             app.Label_3.Text = string(n);
+% 
+%             end
+%             hold(app.UIAxes, "off");
+        
+            
+        end
+
+        % Value changed function: SizeSlider
+        function SizeSliderValueChanged(app, event)
+            value = app.SizeSlider.Value;
+            app.Label_2.Text = string(value);            
+        end
+    end
+
+    % Component initialization
+    methods (Access = private)
+
+        % Create UIFigure and components
+        function createComponents(app)
+
+            % Create UIFigure and hide until all components are created
+            app.UIFigure = uifigure('Visible', 'off');
+            app.UIFigure.Position = [100 100 632 657];
+            app.UIFigure.Name = 'MATLAB App';
+
+            % Create UIAxes
+            app.UIAxes = uiaxes(app.UIFigure);
+            app.UIAxes.AmbientLightColor = 'none';
+            app.UIAxes.DataAspectRatio = [1 1 1];
+            app.UIAxes.XLim = [0 20];
+            app.UIAxes.YLim = [0 20];
+            app.UIAxes.ZLim = [0 20];
+            app.UIAxes.XTick = [0 5 10 15 20];
+            app.UIAxes.YTick = [0 5 10 15 20];
+            app.UIAxes.Color = [0.4667 0.6745 0.1882];
+            app.UIAxes.Box = 'on';
+            app.UIAxes.ButtonDownFcn = createCallbackFcn(app, @UIAxesButtonDown, true);
+            app.UIAxes.Position = [12 305 595 344];
+
+            % Create RotationSliderLabel
+            app.RotationSliderLabel = uilabel(app.UIFigure);
+            app.RotationSliderLabel.HorizontalAlignment = 'right';
+            app.RotationSliderLabel.Position = [41 269 51 22];
+            app.RotationSliderLabel.Text = 'Rotation';
+
+            % Create RotationSlider
+            app.RotationSlider = uislider(app.UIFigure);
+            app.RotationSlider.Limits = [0 1];
+            app.RotationSlider.ValueChangedFcn = createCallbackFcn(app, @RotationSliderValueChanged, true);
+            app.RotationSlider.Position = [113 278 150 3];
+
+            % Create SizeSliderLabel
+            app.SizeSliderLabel = uilabel(app.UIFigure);
+            app.SizeSliderLabel.HorizontalAlignment = 'right';
+            app.SizeSliderLabel.Position = [49 216 28 22];
+            app.SizeSliderLabel.Text = 'Size';
+
+            % Create SizeSlider
+            app.SizeSlider = uislider(app.UIFigure);
+            app.SizeSlider.Limits = [0 10];
+            app.SizeSlider.ValueChangedFcn = createCallbackFcn(app, @SizeSliderValueChanged, true);
+            app.SizeSlider.Position = [113 226 150 3];
+
+            % Create Label
+            app.Label = uilabel(app.UIFigure);
+            app.Label.Position = [291 263 50 27];
+            app.Label.Text = '0.0';
+
+            % Create Label_2
+            app.Label_2 = uilabel(app.UIFigure);
+            app.Label_2.Position = [291 216 50 22];
+            app.Label_2.Text = '0.0';
+
+            % Create Label_3
+            app.Label_3 = uilabel(app.UIFigure);
+            app.Label_3.Position = [500 216 25 22];
+            app.Label_3.Text = '0';
+
+            % Create NumberofSeedsLabel
+            app.NumberofSeedsLabel = uilabel(app.UIFigure);
+            app.NumberofSeedsLabel.Position = [390 216 103 22];
+            app.NumberofSeedsLabel.Text = 'Number of Seeds:';
+
+            % Create ClickPositionLabel
+            app.ClickPositionLabel = uilabel(app.UIFigure);
+            app.ClickPositionLabel.Position = [390 265 135 22];
+            app.ClickPositionLabel.Text = 'Click Position';
+
+            % Show the figure after all components are created
+            app.UIFigure.Visible = 'on';
+        end
+    end
+
+    % App creation and deletion
+    methods (Access = public)
+
+        % Construct app
+        function app = testApp
+
+            % Create UIFigure and components
+            createComponents(app)
+
+            % Register the app with App Designer
+            registerApp(app, app.UIFigure)
+
+            if nargout == 0
+                clear app
+            end
+        end
+
+        % Code that executes before app deletion
+        function delete(app)
+
+            % Delete UIFigure when app is deleted
+            delete(app.UIFigure)
+        end
+    end
+end
