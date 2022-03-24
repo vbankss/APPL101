@@ -91,6 +91,11 @@ classdef testApp < matlab.apps.AppBase
             value = app.SizeSlider.Value;
             app.Label_2.Text = string(value);            
         end
+        
+        % Button pushed function: ResetButton
+        function ResetButtonPushed(app, event)
+            cla(app.UIAxes)
+        end
     end
 
     % Component initialization
